@@ -1,0 +1,43 @@
+plugins {
+    id 'java'
+    id 'maven-publish'
+}
+
+group = 'org.example'
+version = '1.0'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testImplementation platform('org.junit:junit-bom:5.10.0')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+
+    implementation 'com.squareup.okhttp3:okhttp:4.12.0'
+    implementation 'com.google.code.gson:gson:2.10.1'
+}
+
+// 创建包含所有依赖的 fat JAR
+jar {
+    manifest {
+        attributes 'Main-Class': 'org.example.Main'
+    }
+
+    // 关键部分：包含所有依赖项
+    from {
+        configurations.runtimeClasspath.collect {
+            it.isDirectory() ? it : zipTree(it)
+        }
+    }
+
+    // 处理重复文件
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+
+    // 可选：设置包含依赖的JAR的文件名
+    archiveFileName = "${project.name}-${project.version}.jar"
+}
+
+test {
+    useJUnitPlatform()
+}
