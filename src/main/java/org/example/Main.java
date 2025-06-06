@@ -7,7 +7,7 @@ public class Main {
 
     public static void main(String[] args) {
         DeepSeekConfig config = new DeepSeekConfig.Builder()
-                .apiKey("sk-00a32fc9ca8049a999369ba8ad404065")
+//
                 .model(Model.REASONER)
                 .stream(true)
                 .requestMode(true)
