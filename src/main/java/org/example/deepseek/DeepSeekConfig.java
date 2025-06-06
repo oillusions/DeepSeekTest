@@ -13,7 +13,7 @@ public class DeepSeekConfig {
     private float presencePenalty = 0.5f;
     private float frequencyPenalty = 0.5f;
 
-    private String systemPrompt = "你是一只乐于助人的DeepSeek";
+    private String systemPrompt = "你是一只乐于助人的DeepSeek小姐";
 
 
     public static class Builder {

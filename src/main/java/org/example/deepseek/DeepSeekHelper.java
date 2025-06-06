@@ -19,10 +19,9 @@ public class DeepSeekHelper {
     private final Gson gson = new Gson().newBuilder().setPrettyPrinting().create();
     private final DeepSeekConfig config;
     private final HttpClient httpClient = HttpClient.newHttpClient();
-    private List<String> streamBuffer;
     private JsonArray messageContext = new JsonArray();
 
-    private final List<Consumer<HttpResponse<InputStream>>> listeners = new ArrayList<>();
+    private final List<Consumer<DeepSeekResponse>> listeners = new ArrayList<>();
 
 
     public DeepSeekHelper(DeepSeekConfig config) {
@@ -85,47 +84,51 @@ public class DeepSeekHelper {
                 .build();
     }
 
-    public DeepSeekResponse request() {
+    public void request() {
         HttpRequest request = buildRequest(buildRequestBody());
-        streamBuffer = new ArrayList<>();
         System.out.println(gson.toJson(buildRequestBody()));
 
         if (config.isRequestMode()) {
-            httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofInputStream())
-                    .thenAccept(response -> {
-//                        notifyListener(response);
-                        System.out.println(response.statusCode());
-                        try (InputStream stream = response.body()) {
-                            BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
-                            String line;
-                            while ((line = reader.readLine()) != null) {
-                                streamBuffer.add(line);
-                                System.out.println(line);
-                            }
-                        } catch (Exception e) {
+            if (config.isStream()) {
+                httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofInputStream())
+                        .thenAccept(response -> {
+                            try (InputStream stream = response.body()) {
+                                BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
+                                String line;
+                                while ((line = reader.readLine()) != null) {
+                                    if (line.startsWith("data: ")) {
+                                        notifyListener(new DeepSeekStreamResponse(gson.fromJson(line.substring(6), JsonObject.class), response.statusCode()));
+                                    }
+                                }
+                            } catch (Exception e) {
 
-                        }
-                    });
+                            }
+                        });
+            } else {
+                httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString())
+                        .thenAccept(response -> {
+                            notifyListener(new DeepSeekNonStreamResponse(gson.fromJson(response.body(), JsonObject.class), response.statusCode()));
+                        });
+            }
         } else {
             try {
-                httpClient.send(request, HttpResponse.BodyHandlers.ofInputStream());
+                HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+                notifyListener(new DeepSeekNonStreamResponse(gson.fromJson(response.body(), JsonObject.class), response.statusCode()));
+
             } catch (Exception e) {
 
             }
-
         }
-
-        return null;
     }
 
 
 
-    public void addListener(Consumer<HttpResponse<InputStream>> listener) {
+    public void addListener(Consumer<DeepSeekResponse> listener) {
         listeners.add(listener);
     }
 
-    private void notifyListener(HttpResponse<InputStream> response) {
-        for (Consumer<HttpResponse<InputStream>> listener : listeners) {
+    private void notifyListener(DeepSeekResponse response) {
+        for (Consumer<DeepSeekResponse> listener : listeners) {
             listener.accept(response);
         }
     }

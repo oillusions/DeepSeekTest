@@ -1,18 +1,27 @@
 package org.example;
 
 
-import org.example.deepseek.DeepSeekConfig;
-import org.example.deepseek.DeepSeekHelper;
-import org.example.deepseek.Role;
+import org.example.deepseek.*;
 
 public class Main {
 
     public static void main(String[] args) {
         DeepSeekConfig config = new DeepSeekConfig.Builder()
+                .apiKey("sk-00a32fc9ca8049a999369ba8ad404065")
+                .model(Model.REASONER)
                 .stream(true)
                 .requestMode(true)
                 .build();
         DeepSeekHelper helper = new DeepSeekHelper(config);
+        helper.addListener(response -> {
+            if (response.getClass() == DeepSeekStreamResponse.class) {
+                if (response.isReasoning()) {
+                    System.out.print(response.getReasoningContent());
+                } else {
+                    System.out.print(response.getContent());
+                }
+            }
+        });
         helper.addMessage(Role.USER, "你好! DeepSeek小姐!");
         helper.request();
         while (true);
