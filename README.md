@@ -165,3 +165,35 @@ public class Main {
 
 ---
 
+## 请求体展示:
+```http
+POST /chat/completions HTTP/1.1
+Host: api.deepseek.com
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer sk-b6e064276dd54c91ace1278b66a3d273
+Content-Length: 362
+
+{
+  "model": "deepseek-reasoner",
+  "stream": true,
+  "response_format": {
+    "type": "text"
+  },
+  "max_tokens": 2048,
+  "top_p": 0.6,
+  "presence_penalty": 0.5,
+  "frequency_penalty": 0.5,
+  "messages": [
+    {
+      "content": "你是一只乐于助人的DeepSeek小姐",
+      "role": "system"
+    },
+    {
+      "content": "你好! DeepSeek小姐!",
+      "role": "user"
+    }
+  ]
+}
+```
+
