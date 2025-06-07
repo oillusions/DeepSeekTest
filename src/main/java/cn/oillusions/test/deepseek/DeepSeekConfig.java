@@ -1,4 +1,4 @@
-package org.example.deepseek;
+package cn.oillusions.test.deepseek;
 
 public class DeepSeekConfig {
     private boolean requestMode = false;

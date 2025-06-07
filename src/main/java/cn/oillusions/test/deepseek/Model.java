@@ -1,4 +1,4 @@
-package org.example.deepseek;
+package cn.oillusions.test.deepseek;
 
 public enum Model {
     CHAT("deepseek-chat"),

@@ -1,4 +1,4 @@
-package org.example.logger;
+package cn.oillusions.test.logger;
 
 public interface Logger {
     void log(LogLevel level, String message);

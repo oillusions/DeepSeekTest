@@ -1,9 +1,9 @@
-package org.example.default_logger;
+package cn.oillusions.test.default_logger;
 
-import org.example.logger.Handler;
-import org.example.logger.LogLevel;
-import org.example.logger.LogRecord;
-import org.example.logger.Logger;
+import cn.oillusions.test.logger.Handler;
+import cn.oillusions.test.logger.LogLevel;
+import cn.oillusions.test.logger.LogRecord;
+import cn.oillusions.test.logger.Logger;
 
 import java.util.ArrayList;
 import java.util.List;

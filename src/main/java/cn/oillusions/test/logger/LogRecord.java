@@ -1,4 +1,4 @@
-package org.example.logger;
+package cn.oillusions.test.logger;
 
 public class LogRecord {
     protected final String message;

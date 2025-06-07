@@ -1,7 +1,7 @@
-package org.example.default_logger;
+package cn.oillusions.test.default_logger;
 
-import org.example.logger.Formatter;
-import org.example.logger.LogRecord;
+import cn.oillusions.test.logger.Formatter;
+import cn.oillusions.test.logger.LogRecord;
 
 import java.time.Instant;
 import java.time.LocalDateTime;

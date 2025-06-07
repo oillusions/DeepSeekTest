@@ -3,7 +3,7 @@ plugins {
     id 'maven-publish'
 }
 
-group = 'org.example'
+group = 'cn.oillusions.test'
 version = '1.0'
 
 repositories {
@@ -17,10 +17,9 @@ dependencies {
     implementation 'com.google.code.gson:gson:2.10.1'
 }
 
-// 创建包含所有依赖的 fat JAR
 jar {
     manifest {
-        attributes 'Main-Class': 'org.example.Main'
+        attributes 'Main-Class': 'cn.oillusions.test.Main'
     }
 
     // 关键部分：包含所有依赖项

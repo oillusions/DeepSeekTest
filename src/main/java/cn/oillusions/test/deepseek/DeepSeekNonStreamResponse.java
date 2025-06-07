@@ -1,4 +1,4 @@
-package org.example.deepseek;
+package cn.oillusions.test.deepseek;
 
 import com.google.gson.JsonObject;
 

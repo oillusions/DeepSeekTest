@@ -1,4 +1,4 @@
-package org.example.util;
+package cn.oillusions.test.util;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -1,4 +1,4 @@
-package org.example.deepseek;
+package cn.oillusions.test.deepseek;
 
 public enum ResultFormat {
     TEXT("text"),
