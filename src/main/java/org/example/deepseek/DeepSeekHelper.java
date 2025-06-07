@@ -20,6 +20,8 @@ public class DeepSeekHelper {
     private final DeepSeekConfig config;
     private final HttpClient httpClient = HttpClient.newHttpClient();
     private JsonArray messageContext = new JsonArray();
+    private StringBuilder contentStreamBuffer;
+    private StringBuilder reasoningStreamBuffer;
 
     private final List<Consumer<DeepSeekResponse>> listeners = new ArrayList<>();
 
@@ -86,6 +88,8 @@ public class DeepSeekHelper {
 
     public void request() {
         HttpRequest request = buildRequest(buildRequestBody());
+        contentStreamBuffer = new StringBuilder();
+        reasoningStreamBuffer = new StringBuilder();
         System.out.println(gson.toJson(buildRequestBody()));
 
         if (config.isRequestMode()) {
@@ -97,7 +101,15 @@ public class DeepSeekHelper {
                                 String line;
                                 while ((line = reader.readLine()) != null) {
                                     if (line.startsWith("data: ")) {
-                                        notifyListener(new DeepSeekStreamResponse(gson.fromJson(line.substring(6), JsonObject.class), response.statusCode()));
+                                        DeepSeekStreamResponse deepSeekResponse = new DeepSeekStreamResponse(gson.fromJson(line.substring(6), JsonObject.class), response.statusCode());
+                                        if (deepSeekResponse.isReasoning()) {
+                                            reasoningStreamBuffer.append(deepSeekResponse.getReasoningContent());
+                                        } else {
+                                            contentStreamBuffer.append(deepSeekResponse.getContent());
+                                        }
+                                        deepSeekResponse.extractDelta().addProperty("reasoning_content", reasoningStreamBuffer.toString());
+                                        deepSeekResponse.extractDelta().addProperty("content", contentStreamBuffer.toString());
+                                        notifyListener(new DeepSeekStreamResponse(deepSeekResponse.getRewResponse(), response.statusCode()));
                                     }
                                 }
                             } catch (Exception e) {
