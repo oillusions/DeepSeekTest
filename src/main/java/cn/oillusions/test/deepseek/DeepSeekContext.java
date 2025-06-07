@@ -90,7 +90,7 @@ public class DeepSeekContext {
         HttpRequest request = buildRequest(buildRequestBody());
         contentStreamBuffer = new StringBuilder();
         reasoningStreamBuffer = new StringBuilder();
-        System.out.println(gson.toJson(buildRequestBody()));
+//        System.out.println(gson.toJson(gson.fromJson(buildRequestBody(), JsonObject.class)));
 
         if (config.isRequestMode()) {
             if (config.isStream()) {
@@ -99,6 +99,7 @@ public class DeepSeekContext {
                             try (InputStream stream = response.body()) {
                                 BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
                                 String line;
+                                JsonObject prevResponse = new JsonObject();
                                 while ((line = reader.readLine()) != null) {
                                     if (line.startsWith("data: ") && !line.startsWith("data: [DONE]")) {
                                         DeepSeekStreamResponse deepSeekResponse = new DeepSeekStreamResponse(gson.fromJson(line.substring(6), JsonObject.class), response.statusCode());
@@ -110,6 +111,10 @@ public class DeepSeekContext {
                                         deepSeekResponse.extractDelta().addProperty("reasoning_content", reasoningStreamBuffer.toString());
                                         deepSeekResponse.extractDelta().addProperty("content", contentStreamBuffer.toString());
                                         notifyListener(new DeepSeekStreamResponse(deepSeekResponse.getRewResponse(), response.statusCode()));
+
+                                        prevResponse = deepSeekResponse.getRewResponse().deepCopy();
+                                    } else if (line.startsWith("data: [DONE]")){
+                                        notifyListener(new DeepSeekNonStreamResponse(prevResponse, response.statusCode()));
                                     }
                                 }
                             } catch (Exception e) {
