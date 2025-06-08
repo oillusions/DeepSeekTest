@@ -3,14 +3,14 @@ package cn.oillusions.test.deepseek;
 import com.google.gson.JsonObject;
 
 public class DeepSeekStreamResponse implements DeepSeekResponse {
-    private final JsonObject rewResponse;
+    private final JsonObject rawResponse;
     private final String content;
     private final String reasoningContent;
     private final int statusCode;
     private final boolean reasoning;
 
-    public DeepSeekStreamResponse(JsonObject rewResponse, int statusCode) {
-        this.rewResponse = rewResponse;
+    public DeepSeekStreamResponse(JsonObject rawResponse, int statusCode) {
+        this.rawResponse = rawResponse;
         this.statusCode = statusCode;
 
         this.content = extractContent();
@@ -18,17 +18,15 @@ public class DeepSeekStreamResponse implements DeepSeekResponse {
         this.reasoning = this.content.isBlank();
     }
 
-    protected JsonObject extractDelta() {
-        if (this.rewResponse.has("choices")) {
-            try {
-                return rewResponse.getAsJsonArray("choices")
-                        .get(0).getAsJsonObject()
-                        .getAsJsonObject("delta");
-            } catch (Exception e) {
-                return new JsonObject();
-            }
+    protected JsonObject extractChoices(int index) {
+        if (this.rawResponse.has("choices")) {
+            return rawResponse.getAsJsonArray("choices").get(index).getAsJsonObject();
         }
         return new JsonObject();
+    }
+
+    protected JsonObject extractDelta() {
+        return extractChoices(0).getAsJsonObject("delta");
     }
 
     protected String extractContent()
@@ -39,7 +37,8 @@ public class DeepSeekStreamResponse implements DeepSeekResponse {
                     return messageStream.get("content").getAsString();
                 }
             } catch (Exception e) {
-                return "";
+                System.err.println(new DeepSeekException(e.getMessage(), -1).getMessage());
+                e.printStackTrace();
             }
         return "";
     }
@@ -51,7 +50,8 @@ public class DeepSeekStreamResponse implements DeepSeekResponse {
                     return messageStream.get("reasoning_content").getAsString();
                 }
             } catch (Exception e) {
-                return "";
+                System.err.println(new DeepSeekException(e.getMessage(), -1).getMessage());
+                e.printStackTrace();
             }
         return "";
     }
@@ -60,8 +60,8 @@ public class DeepSeekStreamResponse implements DeepSeekResponse {
         return statusCode;
     }
 
-    public JsonObject getRewResponse() {
-        return rewResponse;
+    public JsonObject getrawResponse() {
+        return rawResponse;
     }
 
     public String getContent() {
